@@ -66,9 +66,10 @@ async def chat_with_bot(message: UserMessage):
         5. If you don't know the answer, politely state that a human strategist can provide a custom solution and invite them to book a call.
         """
 
-        # 3. Ask Groq to generate the beautiful response using the updated, supported model
+        # 3. Ask Groq to generate the beautiful response
+        # UPDATED: Using llama-3.3-70b-versatile, the current standard, highly-capable model available on Groq
         completion = groq_client.chat.completions.create(
-            model="llama-3.1-8b-instant",  # <-- FIXED: Updated to the current supported Groq model
+            model="llama-3.3-70b-versatile",  
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_question}
