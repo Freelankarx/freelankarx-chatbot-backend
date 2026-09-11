@@ -67,9 +67,9 @@ async def chat_with_bot(message: UserMessage):
         """
 
         # 3. Ask Groq to generate the beautiful response
-        # UPDATED: Using llama-3.3-70b-versatile, the current standard, highly-capable model available on Groq
+        # UPDATED: Using openai/gpt-oss-120b, the current standard, highly-capable model available on Groq
         completion = groq_client.chat.completions.create(
-            model="llama-3.3-70b-versatile",  
+            model="openai/gpt-oss-120b",  
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_question}
