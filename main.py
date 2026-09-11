@@ -6,8 +6,10 @@ from pydantic import BaseModel
 from supabase import create_client
 from groq import Groq
 
+# Initialize FastAPI app
 app = FastAPI()
 
+# Allow your Vercel frontend to talk to this Render backend safely
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -16,12 +18,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load Environment Variables
+# Load Environment Variables from Render
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
-# Debug print to Render logs to verify keys are loading
+# Debug prints to verify keys are loading in Render logs
 print(f"DEBUG: SUPABASE_URL loaded: {bool(SUPABASE_URL)}")
 print(f"DEBUG: SUPABASE_KEY loaded: {bool(SUPABASE_KEY)}")
 print(f"DEBUG: GROQ_API_KEY loaded: {bool(GROQ_API_KEY)}")
@@ -29,9 +31,11 @@ print(f"DEBUG: GROQ_API_KEY loaded: {bool(GROQ_API_KEY)}")
 try:
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
     groq_client = Groq(api_key=GROQ_API_KEY)
+    print("DEBUG: Successfully initialized Supabase and Groq clients.")
 except Exception as e:
     print(f"DEBUG: Initialization error: {e}")
 
+# Define the expected format of the incoming message
 class UserMessage(BaseModel):
     text: str
 
@@ -47,8 +51,9 @@ async def chat_with_bot(message: UserMessage):
             for row in data.data:
                 facts += f"Topic: {row['topic']}. Info: {row['information']}\n"
         else:
-            facts = "No facts found in database. Check Supabase table name and RLS policies."
+            facts = "No facts found in database. Please check Supabase table name and RLS policies."
 
+        # 2. Premium Freelankarx System Prompt
         system_prompt = f"""
         You are the elite AI Sales & Strategy Assistant for Freelankarx, a premium digital studio.
         Your goal is to be professional, confident, and consultative, converting visitors into booked strategy calls.
@@ -61,9 +66,9 @@ async def chat_with_bot(message: UserMessage):
         5. If you don't know the answer, politely state that a human strategist can provide a custom solution and invite them to book a call.
         """
 
-        # 3. Ask Groq to generate the beautiful response
+        # 3. Ask Groq to generate the beautiful response using the updated, supported model
         completion = groq_client.chat.completions.create(
-            model="llama3-8b-8192",
+            model="llama-3.1-8b-instant",  # <-- FIXED: Updated to the current supported Groq model
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_question}
@@ -74,6 +79,7 @@ async def chat_with_bot(message: UserMessage):
         return {"response": bot_response}
     
     except Exception as e:
-        # THIS IS THE MAGIC: It sends the exact error back to your browser!
+        # Fallback error handler to prevent silent 500 crashes
         error_details = traceback.format_exc()
-        return {"response": f"🚨 DEBUG ERROR: {str(e)}\n\nDetails:\n{error_details}"}
+        print(f"ERROR in /chat endpoint: {error_details}")
+        return {"response": f"🚨 DEBUG ERROR: {str(e)}\n\nPlease check Render logs for details."}
