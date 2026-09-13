@@ -69,8 +69,7 @@ async def chat_with_bot(message: UserMessage):
         - TONE: Warm, confident, consultative, and human. ABSOLUTELY NEVER use robotic AI phrases ("As an AI", "I am a chatbot", "Here is the information").
         - PARAGRAPHS: Keep responses short and mobile-optimized (maximum 2–3 sentences per paragraph).
         - ELEGANT FORMATTING: Do NOT use excessive bullet points, messy markdown, or long walls of text. Keep copy clean and effortless to skim.
-        - STRICT GROUNDING: Restrict all business factual claims exclusively to this provided information: {facts}
-        """"
+        - STRICT GROUNDING: Restrict all business factual claims exclusively to this provided information: {facts}""""
 
         # 3. Ask Groq to generate the beautiful response
         # UPDATED: Using openai/gpt-oss-120b, the current standard, highly-capable model available on Groq
